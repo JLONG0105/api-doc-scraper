@@ -1,0 +1,37 @@
+# 磁力引擎平台配置
+platform:
+  name: 磁力引擎
+  domain: developers.e.kuaishou.com
+  output_columns: [父参数, 子参数, 类型, 示例, 描述, 备注]
+  output_filename_template: "响应参数_磁力引擎_{api_name}接口数据.xlsx"
+
+scraping:
+  wait_ms: 8000
+  load_strategy: domcontentloaded
+  viewport:
+    width: 1920
+    height: 1080
+
+extraction:
+  # 表格布局
+  layout: table
+  level_class_pattern: "ant-table-row-level-(\\d+)"  # 层级class正则
+
+  # 字段名提取
+  field_extraction:
+    method: span_filtered  # 从span中提取，排除标识
+    exclude_classes:
+      - ant-table-row-indent  # 缩进
+      - field-add             # 新增标识
+      - field-adjust          # 调试标识
+      - field-                # 其他field-前缀标识
+    marker_words: [新, 调, 调试]  # 标识词
+    fallback: cell_text  # 兜底取整cell文本
+
+  # 表格列配置（6列）
+  table_columns: [字段, 类型, 示例, 描述, 备注]
+
+  # 应答表格识别
+  response_table:
+    identifier_fields: [code, message, data]  # 含这些字段的表格为应答表格
+    fallback: max_rows  # 找不到时用行数最多的表格
