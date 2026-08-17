@@ -1,0 +1,41 @@
+# 小红书开放平台配置
+platform:
+  name: 小红书开放平台
+  domain: ad-market.xiaohongshu.com
+  output_columns: [父参数, 子参数, 类型, 说明, 备注]
+  output_filename_template: "响应参数_小红书开放平台_{api_name}接口数据.xlsx"
+
+scraping:
+  wait_ms: 10000
+  load_strategy: domcontentloaded
+  viewport:
+    width: 1920
+    height: 1080
+
+extraction:
+  # 链式多表格结构
+  structure: chained_tables
+  title_tags: [p, h2, h3, h4, h5]  # 标题可能的标签
+  title_texts: [返回参数, 应答参数, 响应参数]  # 返回参数标题文本
+  stop_conditions:
+    titles: [示例：, 请求示例, 响应示例]
+    elements: [pre]  # 遇到PRE且已有表格则停止
+
+  # 表格列配置
+  table_columns:
+    standard: [字段, 类型, 说明, 备注]  # 4列
+    with_category: [指标分类, 字段, 类型, 说明, 备注]  # 5列
+
+  # 指标分类处理
+  category_handling:
+    enabled: true
+    merge_to_note: true  # 将指标分类并入备注列
+    format: "[{category}] {note}"  # 格式
+
+  # 层级构建
+  hierarchy:
+    method: stack  # 用栈构建
+    title_matching:
+      # 标题纠错：如果标题等于当前表格父字段本身，用当前表格的最后一个struct/list字段
+      fix_wrong_title: true
+      fallback_field_type: [struct, object, list]  # 兜底字段类型

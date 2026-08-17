@@ -1,0 +1,47 @@
+# 巨量引擎平台配置
+platform:
+  name: 巨量引擎
+  domain: open.oceanengine.com
+  output_columns: [父参数, 子参数, 类型, 描述]
+  output_filename_template: "响应参数_巨量引擎_{api_name}接口数据.xlsx"
+
+scraping:
+  wait_ms: 8000
+  load_strategy: domcontentloaded
+  viewport:
+    width: 1920
+    height: 1080
+
+extraction:
+  # 表格布局类型
+  layouts:
+    - type: table
+      description: 标准 <table> 布局
+      level_attribute: data-level
+      field_extraction:
+        priority:
+          - bare_text_node  # 优先取裸文本节点
+          - span_filtered   # 再从span中找（排除标注）
+          - cell_text       # 兜底取整cell文本
+        exclude_classes:
+          - qz-table-level
+          - qz-tag-view
+          - qz-tag-type-abandon
+          - indent
+          - field-add
+          - field-adjust
+          - expand-icon
+        marker_words: [new, 废弃, 新增, 新, 调, 调试]
+
+    - type: section
+      description: section 模拟表格布局
+      row_selector: "section.row.body[data-level]"
+      field_selector: .col_params_name
+      type_selector: .col_param_type
+      desc_selector: .description
+      filter_anchor: "应答|应答参数|应答字段"  # 只提取该标题之后的行
+
+  # 应答表格识别
+  response_table:
+    identifier_fields: [code, data]  # 含这些字段的表格为应答表格
+    fallback: max_rows  # 找不到时用行数最多的表格
