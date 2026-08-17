@@ -87,11 +87,15 @@ api-doc-scraper/
 
 ## License
 
-MIT
+MIT License - 详见 [LICENSE](LICENSE) 文件
+
+## 免责声明
+
+使用本工具前，请仔细阅读 [免责声明](DISCLAIMER.md)。本工具仅供学习和研究目的，请遵守目标网站的 robots.txt 和使用条款。
 
 ## 作者
 
-[@your-github-username](https://github.com/your-github-username)
+[@JLONG0105](https://github.com/JLONG0105)
 
 ---
 
