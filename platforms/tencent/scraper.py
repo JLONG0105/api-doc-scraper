@@ -58,10 +58,11 @@ async def scrape_api(url, wait_ms=10000):
                     const cells = row.querySelectorAll('td');
                     if (cells.length < 3) continue;
 
-                    // ---- 层级: 腾讯营销用 class 标识 ----
+                    // ---- 层级: 腾讯营销用 class + 图标 标识 ----
                     // 无 class = 顶层字段
                     // dynamic-generate-tr isShown = 一级子字段
                     // hidd isShown = 二级子字段
+                    // 但如果字段有 mkt-icon-folded 图标，说明它有子字段，需要特殊处理
                     let level = 0;
                     const className = row.className || '';
                     if (className.includes('dynamic-generate-tr')) {
@@ -79,7 +80,11 @@ async def scrape_api(url, wait_ms=10000):
                     const type_ = cells[1] ? cells[1].textContent.trim() : '';
                     const desc = cells[2] ? cells[2].textContent.trim() : '';
 
-                    tableData.push({level, field: field_clean, type: type_, desc});
+                    // ---- 检查是否有子字段（通过图标判断） ----
+                    const icon = cells[0].querySelector('i.icon');
+                    const hasChildren = icon && icon.className.includes('mkt-icon-folded');
+
+                    tableData.push({level, field: field_clean, type: type_, desc, hasChildren});
                 }
 
                 results.push({index: i, rowCount: rows.length, data: tableData});
@@ -104,20 +109,36 @@ def find_response_table(tables):
 
 
 def build_rows(table_data):
-    """用栈构建父参数路径，生成4列结果行"""
+    """用栈构建父参数路径，生成4列结果行
+
+    腾讯营销的层级规则：
+    - 无 class = 顶层字段（level 0）
+    - dynamic-generate-tr isShown = 一级子字段（level 1）
+    - hidd isShown = 二级子字段（level 2）
+    - 但如果字段有 mkt-icon-folded 图标，说明它有子字段，后续字段应该挂到它下面
+    - 特殊情况：如果当前字段是叶子节点（无子字段），且栈顶元素有子字段，则当前字段应该挂到栈顶元素下
+    """
     result_rows = []
     path_stack = []
 
     for item in table_data:
         level = item['level']
         field = item['field']
+        has_children = item.get('hasChildren', False)
 
         if field == '名称' or not field:
             continue
 
-        # 弹出所有层级 >= 当前层级的元素
-        while path_stack and path_stack[-1][0] >= level:
-            path_stack.pop()
+        # 特殊处理：如果当前字段是叶子节点，且栈顶元素有子字段，则当前字段应该挂到栈顶元素下
+        # 例如：effect_funds（有子字段）→ effect_date（叶子节点，应该挂到 effect_funds 下）
+        if not has_children and path_stack and path_stack[-1][0] == level:
+            # 栈顶元素层级 == 当前层级，说明当前字段是栈顶元素的子字段
+            # 不弹出栈顶元素
+            pass
+        else:
+            # 弹出所有层级 >= 当前层级的元素
+            while path_stack and path_stack[-1][0] >= level:
+                path_stack.pop()
 
         # 父参数: 用 - 连接路径栈
         parent = '-'.join([it[1] for it in path_stack]) if path_stack else ''
@@ -129,7 +150,9 @@ def build_rows(table_data):
             '描述': clean(item['desc']),
         })
 
-        path_stack.append((level, field))
+        # 如果当前字段有子字段，压入栈；否则不压栈（叶子节点）
+        if has_children:
+            path_stack.append((level, field))
 
     return result_rows
 
