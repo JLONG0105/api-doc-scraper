@@ -1,0 +1,37 @@
+# 腾讯营销开放平台配置
+platform:
+  name: 腾讯营销开放平台
+  domain: developers.e.qq.com
+  output_columns: [父参数, 子参数, 类型, 描述]
+  output_filename_template: "响应参数_腾讯营销_{api_name}接口数据.xlsx"
+
+scraping:
+  wait_ms: 10000
+  load_strategy: domcontentloaded
+  viewport:
+    width: 1920
+    height: 1080
+
+extraction:
+  # 表格布局
+  layout: table
+  level_class_mapping:
+    # 无 class = 顶层字段 (level 0)
+    # dynamic-generate-tr isShown = 一级子字段 (level 1)
+    # hidd isShown = 二级子字段 (level 2)
+    "": 0
+    "dynamic-generate-tr": 1
+    "hidd": 2
+
+  # 字段名提取
+  field_extraction:
+    method: direct  # 直接从第一个cell提取
+    remove_suffix: ["*"]  # 去掉末尾的 * （必填标记）
+
+  # 表格列配置（3列）
+  table_columns: [名称, 类型, 描述]
+
+  # 应答表格识别
+  response_table:
+    identifier_fields: [list, page_info]  # 含这些字段的表格为应答表格
+    fallback: max_rows  # 找不到时用行数最多的表格

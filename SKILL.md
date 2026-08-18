@@ -16,6 +16,7 @@ description: 爬取各广告平台 API 文档的响应参数，生成结构化 E
 | 巨量引擎 | open.oceanengine.com | 父参数、子参数、类型、描述 (4列) | 支持 table 和 section 两种布局 |
 | 小红书开放平台 | ad-market.xiaohongshu.com | 父参数、子参数、类型、说明、备注 (5列) | 链式多表格结构，支持"指标分类"列 |
 | 磁力引擎 | developers.e.kuaishou.com | 父参数、子参数、类型、示例、描述、备注 (6列) | ant-table-row-level-N 层级，需排除 field-add/field-adjust 标识 |
+| 腾讯营销开放平台 | developers.e.qq.com | 父参数、子参数、类型、描述 (4列) | class 标识层级（dynamic-generate-tr/hidd），字段名可能带 * 必填标记 |
 
 ## 使用方法
 
@@ -65,6 +66,15 @@ python platforms/xiaohongshu/scraper.py --url "https://..." --name "接口名" -
 - **字段名提取**：从 span 中提取，需排除 `ant-table-row-indent`（缩进）、`field-add`（新增）、`field-adjust`（调试）等标识 span
 - **标识词**："新"、"调" 等单字标识需排除
 - **表格列**：字段 | 类型 | 示例 | 描述 | 备注 (6列)
+
+### 腾讯营销开放平台
+
+- **层级标识**：通过 row 的 class 判断
+  - 无 class = 顶层字段（如 `list`、`page_info`）
+  - `dynamic-generate-tr isShown` = 一级子字段（如 `list` 的子字段）
+  - `hidd isShown` = 二级子字段（如 `page_info` 的子字段）
+- **字段名提取**：直接从第一个 cell 提取，需去掉末尾的 `*`（必填标记）
+- **表格列**：名称 | 类型 | 描述 (3列)
 
 ## 常见问题
 

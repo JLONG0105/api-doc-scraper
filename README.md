@@ -76,6 +76,7 @@ api-doc-scraper/
 | 巨量引擎 | ✅ | 父参数、子参数、类型、描述 | 支持 table/section 两种布局 |
 | 小红书开放平台 | ✅ | 父参数、子参数、类型、说明、备注 | 链式多表格、指标分类列 |
 | 磁力引擎 | ✅ | 父参数、子参数、类型、示例、描述、备注 | ant-table-row-level-N 层级、field-add/field-adjust 标识过滤 |
+| 腾讯营销开放平台 | ✅ | 父参数、子参数、类型、描述 | class 标识层级（dynamic-generate-tr/hidd）、字段名带 * 必填标记 |
 
 ## 贡献
 
