@@ -136,6 +136,21 @@ python platforms/kuaishou/scraper.py \
 
 **输出**：`响应参数_磁力引擎_查询账户余额接口数据.xlsx`（6列：父参数、子参数、类型、示例、描述、备注）
 
+### 腾讯营销开放平台
+
+```bash
+python platforms/tencent/scraper.py \
+  --url "https://developers.e.qq.com/v3.0/docs/api/daily_reports/get" \
+  --name "获取日报表" \
+  --output "./output"
+```
+
+**输出**：`响应参数_腾讯营销_获取日报表接口数据.xlsx`（4列：父参数、子参数、类型、描述）
+
+**特殊处理**：
+- 通过 class + 图标判断层级（`mkt-icon-folded` = 有子字段）
+- 自动去除字段名末尾的 `*` 必填标记
+
 ## 🔧 常见问题
 
 ### Q1: 爬取失败，提示"未找到返回参数标题"
